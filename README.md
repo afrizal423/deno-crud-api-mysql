@@ -1,6 +1,12 @@
+<p>
 <p align="right">
 بِسْــــــــــــــمِ اللَّهِ الرَّحْمَنِ الرَّحِيم 
 </p>
+<p align="center">
+  <img src="https://denolib.github.io/animated-deno-logo/deno-circle-thunder.gif" width="200" title="hover text">
+</p>
+</p>
+
 
 # Deno API CRUD mysql
 
