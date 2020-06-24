@@ -1,7 +1,6 @@
 import modelku from "../models/model.ts"
-import {client} from '../konfigurasi.ts'
 
-
+// @route   GET /api/v1/biodata/
 const getUsers = async ({ response }: { response: any }) => {
     try {
         const result = await modelku.getAllData('users')
@@ -19,11 +18,13 @@ const getUsers = async ({ response }: { response: any }) => {
 }
 
 
-// @route   GET /api/v1/users/:id
+// @route   GET /api/v1/biodata/:id
 const getUser = async ({ params, response }: { params: { id: string }, response: any }) => {
+    var kondisiObj = {
+        id: params.id
+    }
     try {
-        const result = await modelku.getById('users' , 'id', params.id)
-        // const result = await client.execute("SELECT * FROM users WHERE ?? = ?", ["id", params.id])
+        const result = await modelku.getById('users' , kondisiObj)
         response.body = {
             success: true,
             data: result.rows
@@ -37,10 +38,15 @@ const getUser = async ({ params, response }: { params: { id: string }, response:
     }
 }
 
-// @route   Post /api/v1/users
+// @route   Post /api/v1/biodata
 const addUsers = async ({ request, response }: { request: any, response: any }) => {
     const body = await request.body()
     const data = body.value
+    const myObj = {
+        nama: (data.nama !== undefined ? data.nama : "null"),
+        umur: (data.nama !== undefined ? data.umur : "null"),
+        alamat: (data.nama !== undefined ? data.alamat : "null")
+    }
 
     if (!request.hasBody) {
         response.status = 400
@@ -50,9 +56,7 @@ const addUsers = async ({ request, response }: { request: any, response: any }) 
         }
     } else {
         try {
-            const result = await modelku.tmbhData('users', ['nama'], [data.nama])
-            // const result = await client.execute("INSERT INTO users(name) VALUES(?)",[
-            // data.name])
+            const result = await modelku.tmbhData('users', myObj)
 
             response.status = 201
             response.body = {
@@ -63,13 +67,14 @@ const addUsers = async ({ request, response }: { request: any, response: any }) 
             response.status = 500
             response.body = {
                 success: false,
-                msg: err.toString()
+                msg: err.toString(),
+                tips: 'Cek lagi atributnya sama atau tidak. Harus sama(!)'
             }
         }
     }
 }
 
-// @route   PUT /api/v1/users/:id
+// @route   PUT /api/v1/biodata/:id
 const updateUsers = async({ params, request, response }: { params: { id: string }, request: any, response: any }) => {
     await getUser({ params: { "id": params.id }, response })
 
@@ -85,7 +90,11 @@ const updateUsers = async({ params, request, response }: { params: { id: string 
         const data = body.value
         const updatedata = {
             nama: data.nama ,
+            umur : data.umur,
             alamat : data.alamat,
+        }
+        const updateparam = {
+            id: params.id
         }
         if (!request.hasBody) {
             response.status = 400
@@ -95,12 +104,7 @@ const updateUsers = async({ params, request, response }: { params: { id: string 
             }
         } else {
             try {
-                // var que
-                console.log(updatedata)
-                const result = await modelku.updateData('users', updatedata, 'id', params.id)
-                // const result = await client.execute("UPDATE users SET ??=? WHERE ??=?",
-                // ["nama", data.nama,
-                // "id", params.id])
+                const result = await modelku.updateData('users', updatedata, updateparam)
 
                 response.status = 200
                 response.body = {
@@ -111,17 +115,19 @@ const updateUsers = async({ params, request, response }: { params: { id: string 
                 response.status = 500
                 response.body = {
                     success: false,
-                    msg: err.toString()
+                    msg: err.toString(),
                 }
             }
         }
     }
 }
 
-
+// @route   DELETE /api/v1/biodata/:id
 const deleteUsers = async ({ params, response }: { params: { id: string }, response: any }) => {
     await getUser({ params: { "id": params.id }, response })
-
+    var kondisiObj = {
+        id: params.id
+    }
     if(response.status === 404) {
         response.body = {
             success: false,
@@ -131,7 +137,7 @@ const deleteUsers = async ({ params, response }: { params: { id: string }, respo
         return
     } else {
         try {
-            const result = await modelku.delById('users' , 'id', params.id)
+            const result = await modelku.delById('users' , kondisiObj)
 
             response.status = 200
             response.body = {
